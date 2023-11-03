@@ -67,9 +67,10 @@ def localize(env, policy, filt, x0, num_steps, plot=False):
 
     if filt is not None:
         print('-' * 80)
-        print('Mean position error:', mean_position_error)
-        print('Mean Mahalanobis error:', mean_mahalanobis_error)
-        print('ANEES:', anees)
+        print("Getting results")
+        print("Mean position error:", mean_position_error)
+        print("Mean Mahalanobis error:", mean_mahalanobis_error)
+        print("ANEES:", anees)
 
     if plot:
         plt.show(block=True)
