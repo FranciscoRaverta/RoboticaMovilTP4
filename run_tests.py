@@ -41,7 +41,6 @@ if __name__ == '__main__':
             anees_r = []
 
             for i in range(10):
-                print(r[r_idx])
                 command = f"python3 localization.py ekf --data-factor {r[r_idx]} --filter-factor {r[r_idx]} --seed {seeds[i]}"
                 result = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
                 output_text = result.stdout.decode()
