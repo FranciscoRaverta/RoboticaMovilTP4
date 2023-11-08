@@ -27,6 +27,7 @@ class ExtendedKalmanFilter:
         z: landmark observation
         marker_id: landmark ID
         """
+        u = env.sample_noisy_action(u, self.alphas)
         matrixG = env.G(self.mu, u)
         matrixV = env.V(self.mu, u)
 
@@ -35,17 +36,20 @@ class ExtendedKalmanFilter:
                             [0, 0, self.alphas[0] * u[2,0] * u[2,0] + self.alphas[1] * u[1,0] * u[1,0]]])
         
         
-        mu_rayita = self.mu + np.array([[u[1,0]*np.cos(self.mu[2,0]+u[0,0])],
-                                     [u[1,0]*np.sin(self.mu[2,0]+u[0,0])],
-                                     [u[0,0]+u[2,0]]])
+        # mu_rayita = self.mu + np.array([[u[1,0]*np.cos(self.mu[2,0]+u[0,0])],
+        #                              [u[1,0]*np.sin(self.mu[2,0]+u[0,0])],
+        #                              [u[0,0]+u[2,0]]])
+        mu_rayita = env.forward(self.mu, u)
 
         sigma_rayita = np.dot(np.dot(matrixG , self.sigma), matrixG.T) + np.dot(np.dot(matrixV , matrixM), matrixV.T)
 
         
-        dx = env.MARKER_X_POS[marker_id] - mu_rayita[0,0]
-        dy = env.MARKER_Y_POS[marker_id] - mu_rayita[1,0]
+        # dx = env.MARKER_X_POS[marker_id] - mu_rayita[0,0]
+        # dy = env.MARKER_Y_POS[marker_id] - mu_rayita[1,0]
 
-        z_est = np.array([[minimized_angle(np.arctan2(dy,dx) - mu_rayita[2,0])]])
+        # z_est = np.array([[minimized_angle(np.arctan2(dy,dx) - mu_rayita[2,0])]])
+        z_est = env.observe(mu_rayita, marker_id)
+        # z_est = env.sample_noisy_observation(mu_rayita, marker_id, self.beta)
 
         matrixH = np.reshape(env.H(mu_rayita, marker_id),(1,3))
 

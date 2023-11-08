@@ -2,6 +2,7 @@
 """
 
 import numpy as np
+import scipy.stats
 
 from utils import minimized_angle
 
@@ -15,6 +16,7 @@ class ParticleFilter:
         self._init_cov = cov
         self.num_particles = num_particles
         self.reset()
+        
 
     def reset(self):
         self.particles = np.zeros((self.num_particles, 3))
@@ -31,8 +33,28 @@ class ParticleFilter:
         z: landmark observation
         marker_id: landmark ID
         """
-        # YOUR IMPLEMENTATION HERE
-        mean, cov = self.mean_and_variance(self.particles)
+        # Implementation of Partcile Filter following the explanations from Probabilistic Robotics
+        new_particles, new_weights = self.particles, self.weights
+        for m in range(0,self.num_particles):
+            u_noisy = env.sample_noisy_action(u)
+            # new_particles[m,:] = self.particles[m,:] + np.array([u_noisy[1,0]*np.cos(self.particles[m,2]+u_noisy[0,0]),
+            #                                                      u_noisy[1,0]*np.sin(self.particles[m,2]+u_noisy[0,0]),
+            #                                                      u_noisy[0,0]+u_noisy[2,0]])
+            new_particles[m,:] = env.forward(self.particles[m,:], u_noisy).reshape((3,))
+            # Observation we would make if x is the real state and we had no observation noise:
+            z_est = env.observe(new_particles[m,:], marker_id)
+            new_weights[m] = env.likelihood(z_est-z, self.beta)
+        # print(min(new_weights), max(new_weights))
+        new_weights = new_weights / np.sum(new_weights)
+
+        # self.particles, self.weights = self.resample(new_particles, new_weights)
+        new_particles, new_weights = self.resample(new_particles, new_weights)
+        
+        # mean, cov = self.mean_and_variance(self.particles)
+        mean, cov = self.mean_and_variance(new_particles)
+        cond_number = np.linalg.cond(cov)
+
+        self.particles, self.weights = new_particles, new_weights
         return mean, cov
 
     def resample(self, particles, weights):
@@ -43,7 +65,21 @@ class ParticleFilter:
         weights: (n,) array of weights
         """
         new_particles, new_weights = particles, weights
-        # YOUR IMPLEMENTATION HERE
+        
+        # Implementation of the Low-Variance Resampling from Table 4.4 of Probabilistic Robotics
+        r = np.random.uniform(0,1/self.num_particles)
+        c = weights[0]
+        i = 0
+
+        for m in range(0,self.num_particles):
+            U = r + m /self.num_particles
+            while U > c:
+                i += 1
+                c = c + weights[i]
+            new_particles[m,:] = particles[i, :]
+            # new_weights[m] = weights[i] # DUDA: por qué?
+        new_weights = new_weights / np.sum(new_weights)
+        
         return new_particles, new_weights
 
     def mean_and_variance(self, particles):

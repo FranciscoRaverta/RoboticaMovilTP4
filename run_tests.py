@@ -25,6 +25,19 @@ def plot_errors(r, mean_pos, anees):
     plt.show()
     return
 
+def scatter_errors(mean_pos, anees):
+    fig, ax = plt.subplots()
+    r = ["1/64", "1/16", "1/4", "4", "16", "64"]
+    x_positions = range(len(r))
+    ax.plot(x_positions,mean_pos, c='red')
+    ax.plot(x_positions, anees, c='blue')
+    plt.xticks(x_positions, r, rotation=0)
+    ax.set(xlabel='r', ylabel='Errors',
+       title='Position Error (red) and ANEES (blue)')
+    ax.grid()
+    plt.show()
+    return
+
 if __name__ == '__main__':
     args = setup_parser().parse_args()
 
@@ -66,6 +79,6 @@ if __name__ == '__main__':
         print("ANEES: \n", anees)
 
         if args.plot:
-            plot_errors(r, mean_pos, anees)
+            scatter_errors(mean_pos, anees)
 
 
