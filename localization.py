@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils import minimized_angle, plot_field, plot_robot, plot_path
+from utils import minimized_angle, plot_field, plot_robot, plot_path, plot_circle
 from soccer_field import Field
 import policies
 from ekf import ExtendedKalmanFilter
@@ -25,6 +25,7 @@ def localize(env, policy, filt, x0, num_steps, plot=False):
 
     if plot:
         fig = env.get_figure()
+        # fig2 = plt.figure(2)
 
     for i in range(num_steps):
         x_real = states_real[i+1, :].reshape((-1, 1))
@@ -41,13 +42,25 @@ def localize(env, policy, filt, x0, num_steps, plot=False):
 
         if plot:
             fig.clear()
+            # fig2.clear()
+            
             plot_field(env, marker_id)
             plot_robot(env, x_real, z_real)
             plot_path(env, states_noisefree[:i+1, :], 'g', 0.5)
             plot_path(env, states_real[:i+1, :], 'b')
             if filt is not None:
                 plot_path(env, states_filter[:i+1, :2], 'r')
+                # particles = filt.particles
+                # ax2 = fig2.gca(
+                #     aspect='equal',
+                #     xlim=(-10,10),#(min(particles[:,0]), max(particles[:,0])),
+                #     ylim=(-10,10)#(min(particles[:,1]), max(particles[:,1]))
+                # )
+                # for jj in range(particles.shape[0]):
+                #     plot_circle(ax2, (particles[jj,0] - mean[0],particles[jj,1] - mean[1]),0.1,'b')
+                
             fig.canvas.flush_events()
+            # fig2.canvas.flush_events()
 
         errors[i, :] = (mean - x_real).ravel()
         errors[i, 2] = minimized_angle(errors[i, 2])
@@ -122,7 +135,8 @@ if __name__ == '__main__':
     policy = policies.OpenLoopRectanglePolicy()
 
     initial_mean = np.array([180, 50, 0]).reshape((-1, 1))
-    initial_cov = np.diag([10, 10, 1])
+    initial_cov = 20 * np.diag([10, 10, 1])
+    # initial_cov = np.diag([10, 10, 1])
 
     if args.filter_type == 'none':
         filt = None

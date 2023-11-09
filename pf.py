@@ -34,9 +34,16 @@ class ParticleFilter:
         marker_id: landmark ID
         """
         # Implementation of Partcile Filter following the explanations from Probabilistic Robotics
-        new_particles, new_weights = self.particles, self.weights
+        # new_particles, new_weights = self.particles, self.weights
+        new_particles = np.zeros((self.num_particles, 3))
+        new_weights = np.ones(self.num_particles) / self.num_particles
+        for j in range(self.num_particles):
+            new_particles[j, :] = self.particles[j, :]
+            new_weights[j] = self.weights[j]
+            
         for m in range(0,self.num_particles):
             u_noisy = env.sample_noisy_action(u)
+            #print(u_noisy)
             # new_particles[m,:] = self.particles[m,:] + np.array([u_noisy[1,0]*np.cos(self.particles[m,2]+u_noisy[0,0]),
             #                                                      u_noisy[1,0]*np.sin(self.particles[m,2]+u_noisy[0,0]),
             #                                                      u_noisy[0,0]+u_noisy[2,0]])
@@ -45,16 +52,20 @@ class ParticleFilter:
             z_est = env.observe(new_particles[m,:], marker_id)
             new_weights[m] = env.likelihood(z_est-z, self.beta)
         # print(min(new_weights), max(new_weights))
+        # print("new: \n", new_weights)
+        # print("self: \n", self.weights)
         new_weights = new_weights / np.sum(new_weights)
+        # print("new - weighted: \n", new_weights)
 
         # self.particles, self.weights = self.resample(new_particles, new_weights)
         new_particles, new_weights = self.resample(new_particles, new_weights)
-        
+        # print("new-new: \n", new_weights)
+
         # mean, cov = self.mean_and_variance(self.particles)
         mean, cov = self.mean_and_variance(new_particles)
-        cond_number = np.linalg.cond(cov)
 
-        self.particles, self.weights = new_particles, new_weights
+        self.particles = new_particles
+        self.weights = new_weights
         return mean, cov
 
     def resample(self, particles, weights):
@@ -64,7 +75,11 @@ class ParticleFilter:
         particles: (n x 3) matrix of poses
         weights: (n,) array of weights
         """
-        new_particles, new_weights = particles, weights
+        new_particles = np.zeros((self.num_particles, 3))
+        new_weights = np.ones(self.num_particles) / self.num_particles
+        for j in range(self.num_particles):
+            new_particles[j, :] = particles[j, :]
+            new_weights[j] = weights[j]
         
         # Implementation of the Low-Variance Resampling from Table 4.4 of Probabilistic Robotics
         r = np.random.uniform(0,1/self.num_particles)
@@ -77,7 +92,7 @@ class ParticleFilter:
                 i += 1
                 c = c + weights[i]
             new_particles[m,:] = particles[i, :]
-            # new_weights[m] = weights[i] # DUDA: por qué?
+            new_weights[m] = weights[i] # DUDA: por qué?
         new_weights = new_weights / np.sum(new_weights)
         
         return new_particles, new_weights
