@@ -38,5 +38,5 @@ python3 localization.py --plot pf --seed 0 --num-particles 100
 Para correr el resto del análisis de ekf, considerando las ponderaciones a alpha y beta, comparando para 20, 50 y 500 particulas:
 
 ```
-python3 run_tests.py pf --plot --num_particles 100
+python3 run_tests.py pf --plot
 ```
