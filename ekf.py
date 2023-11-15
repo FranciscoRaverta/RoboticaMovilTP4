@@ -42,8 +42,6 @@ class ExtendedKalmanFilter:
         mu_rayita = env.forward(self.mu, u)
 
         sigma_rayita = np.dot(np.dot(matrixG , self.sigma), matrixG.T) + np.dot(np.dot(matrixV , matrixM), matrixV.T)
-
-        
         # dx = env.MARKER_X_POS[marker_id] - mu_rayita[0,0]
         # dy = env.MARKER_Y_POS[marker_id] - mu_rayita[1,0]
 

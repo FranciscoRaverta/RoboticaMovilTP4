@@ -110,8 +110,8 @@ def calculate_errors(filter_type, r, seeds, num_particles = 100):
     return mean_pos, mean_maha, anees
 
 if __name__ == '__main__':
-    args = setup_parser().parse_args()
 
+    args = setup_parser().parse_args()
     
     r = [1/64, 1/16, 1/4, 4, 16, 64]
     #r = [1, 2, 4, 8, 16, 64]
@@ -122,22 +122,23 @@ if __name__ == '__main__':
         mean_pos_ekf, mean_maha_ekf, anees_ekf = calculate_errors(args.filter_type, r, seeds, args.num_particles)
         if args.plot:
             scatter_errors(mean_pos_ekf, anees_ekf, r)
+
     elif args.filter_type == "pf":
         print("PF - 20 particles")
-        mean_pos_pf_20, mean_maha_pf_20, anees_ekf_20 = calculate_errors(args.filter_type, r, seeds, 20)
+        mean_pos_pf_20, mean_maha_pf_20, anees_pf_20 = calculate_errors(args.filter_type, r, seeds, 20)
 
         print("PF - 50 particles")
-        mean_pos_pf_50, mean_maha_pf_50, anees_ekf_50 = calculate_errors(args.filter_type, r, seeds, 50)
+        mean_pos_pf_50, mean_maha_pf_50, anees_pf_50 = calculate_errors(args.filter_type, r, seeds, 50)
 
         print("PF - 500 particles")
-        mean_pos_pf_500, mean_maha_pf_500, anees_ekf_500 = calculate_errors(args.filter_type, r, seeds, 500)
+        mean_pos_pf_500, mean_maha_pf_500, anees_pf_500 = calculate_errors(args.filter_type, r, seeds, 500)
         
         if args.plot:
-            scatter_errors(mean_pos_pf_20, anees_ekf_20, r)
-            scatter_errors(mean_pos_pf_50, anees_ekf_50, r)
-            scatter_errors(mean_pos_pf_500, anees_ekf_500, r)
+            scatter_errors(mean_pos_pf_20, anees_pf_20, r)
+            scatter_errors(mean_pos_pf_50, anees_pf_50, r)
+            scatter_errors(mean_pos_pf_500, anees_pf_500, r)
             scatter_errors_compare_mean(mean_pos_pf_20,mean_pos_pf_50,mean_pos_pf_500,r)
-            scatter_errors_compare_anees(anees_ekf_20,anees_ekf_50,anees_ekf_500,r)
+            scatter_errors_compare_anees(anees_pf_20,anees_pf_50,anees_pf_500,r)
 
     
 

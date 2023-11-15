@@ -43,14 +43,13 @@ class ParticleFilter:
             
         for m in range(0,self.num_particles):
             u_noisy = env.sample_noisy_action(u)
-            #print(u_noisy)
             # new_particles[m,:] = self.particles[m,:] + np.array([u_noisy[1,0]*np.cos(self.particles[m,2]+u_noisy[0,0]),
             #                                                      u_noisy[1,0]*np.sin(self.particles[m,2]+u_noisy[0,0]),
             #                                                      u_noisy[0,0]+u_noisy[2,0]])
             new_particles[m,:] = env.forward(self.particles[m,:], u_noisy).reshape((3,))
             # Observation we would make if x is the real state and we had no observation noise:
             z_est = env.observe(new_particles[m,:], marker_id)
-            new_weights[m] = env.likelihood(z_est-z, self.beta)
+            new_weights[m] = env.likelihood(minimized_angle(z_est-z), self.beta)
         # print(min(new_weights), max(new_weights))
         # print("new: \n", new_weights)
         # print("self: \n", self.weights)

@@ -135,8 +135,7 @@ if __name__ == '__main__':
     policy = policies.OpenLoopRectanglePolicy()
 
     initial_mean = np.array([180, 50, 0]).reshape((-1, 1))
-    initial_cov = 20 * np.diag([10, 10, 1])
-    # initial_cov = np.diag([10, 10, 1])
+    initial_cov = np.diag([10, 10, 1])
 
     if args.filter_type == 'none':
         filt = None
